@@ -96,133 +96,6 @@ function login(form) {
     });
 }
 
-  
-// GraphQL client setup
-
-// async function queryGraphQL(query) {
-//     const jwt = localStorage.getItem('jwt');
-//     if (!jwt) {
-//         throw new Error('No JWT token found');
-//     }
-
-//     const response = await fetch(graphqlEndpoint, {
-//         method: 'POST',
-//         headers: {
-//             'Authorization': `Bearer ${jwt}`,
-//         },
-//         body: JSON.stringify({ query })
-//     });
-
-//     const data = await response.json();
-//     if (data.errors) {
-//         throw new Error(data.errors[0].message);
-//     }
-//     return data.data;
-// }
-
-// // Sample queries
-// const queries = {
-//     basicInfo: `{
-//         user {
-//             id
-//             login
-//             attrs
-//         }
-//     }`,
-//     xpProgress: `{
-//         transaction(where: {type: {_eq: "xp"}}, order_by: {createdAt: asc}) {
-//             amount
-//             createdAt
-//             path
-//         }
-//     }`,
-//     projectResults: `{
-//         progress(order_by: {createdAt: asc}) {
-//             grade
-//             createdAt
-//             object {
-//                 name
-//                 type
-//             }
-//         }
-//     }`
-// };
-
-// // Create profile page structure
-// function createProfilePage() {
-//     const container = document.createElement('div');
-//     container.className = 'profile-container';
-
-//     // Create sections
-//     const basicInfoSection = document.createElement('section');
-//     const statsSection = document.createElement('section');
-//     const graphsSection = document.createElement('section');
-
-//     // Add titles
-//     basicInfoSection.innerHTML = '<h2>Basic Information</h2>';
-//     statsSection.innerHTML = '<h2>Statistics</h2>';
-//     graphsSection.innerHTML = '<h2>Progress Graphs</h2>';
-
-//     // Add to container
-//     container.appendChild(basicInfoSection);
-//     container.appendChild(statsSection);
-//     container.appendChild(graphsSection);
-
-//     // Replace login form with profile page
-//     document.body.innerHTML = '';
-//     document.body.appendChild(container);
-
-//     // Load data
-//     loadProfileData(basicInfoSection, statsSection, graphsSection);
-// }
-
-// // Load and display profile data
-// async function loadProfileData(basicInfoSection, statsSection, graphsSection) {
-//     if (card) {
-//         card.remove()
-//     }
-//         // Fetch basic info
-//         const basicInfo = await queryGraphQL(queries.basicInfo);
-//         const xpData = await queryGraphQL(queries.xpProgress);
-//         const projectData = await queryGraphQL(queries.projectResults);
-
-//         // Display basic info
-//         displayBasicInfo(basicInfoSection, basicInfo.user[0]);
-        
-//         // Display statistics
-//         displayStats(statsSection, xpData, projectData);
-        
-//         // Create graphs
-//         createGraphs(graphsSection, xpData, projectData);
-// }
-
-// // Helper function to display basic info
-// function displayBasicInfo(section, user) {
-//     section.innerHTML += `
-//         <div class="info-card">
-//             <p><strong>Login:</strong> ${user.login}</p>
-//             <p><strong>ID:</strong> ${user.id}</p>
-//         </div>
-//     `;
-// }
-
-// // Helper function to display statistics
-// function displayStats(section, xpData, projectData) {
-//     const totalXP = xpData.transaction.reduce((sum, t) => sum + t.amount, 0);
-//     const projectCount = projectData.progress.length;
-//     const passedProjects = projectData.progress.filter(p => p.grade > 0).length;
-
-//     section.innerHTML += `
-//         <div class="stats-card">
-//             <p><strong>Total XP:</strong> ${totalXP}</p>
-//             <p><strong>Projects Completed:</strong> ${projectCount}</p>
-//             <p><strong>Success Rate:</strong> ${((passedProjects / projectCount) * 100).toFixed(1)}%</p>
-//         </div>
-//     `;
-// }
-
-
-// Initialize profile page
 if (localStorage.getItem('jwt')) {
     addLogoutButton()
     createWelcome(queries.name)
@@ -285,10 +158,8 @@ async function totalXP(query) {
 
     const data = await response.json();
 
-    // Extract transactions
     const transactions = data.data.transaction;
 
-    // Filter and sum the amounts where type is 'xp'
     const totalXp = transactions
       .filter((transaction) => transaction.type === 'level')
       .reduce((sum, transaction) => sum + transaction.amount, 0);
