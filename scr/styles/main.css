@@ -1,5 +1,6 @@
 /* From Uiverse.io by alexruix */ 
 body {
+    font: 'Outfit', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -14,7 +15,7 @@ body {
     padding: 1.9rem 1.2rem;
     text-align: center;
     background: #2a2b38;
-    border-radius: 8px; /* Optional: Add a nice rounded corner */
+    /* border-radius: 8px; */
   }
   
    /*Inputs*/
@@ -128,6 +129,34 @@ h2 {
     cursor: pointer;
 }
 
-.logout-btn:hover {
-    background: #c82333;
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the cards horizontally */
+    gap: 1rem; /* Space between the cards */
+    padding: 1rem;
+}
+
+.item {
+    flex: 1 1 calc(50% - 1rem); /* Each card takes 50% width minus the gap */
+    max-width: 300px; /* Optional: limit the max size */
+    min-width: 200px; /* Optional: minimum size */
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background: #2a2b38;
+    color: white;
+    border-radius: 12px; /* Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.item:hover {
+    transform: scale(1.05); /* Slightly enlarge on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+@media (max-width: 768px) {
+    .item {
+        flex: 1 1 calc(100% - 1rem); /* Full width for small screens */
+    }
 }
