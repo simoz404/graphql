@@ -1,6 +1,9 @@
 import {addLogoutButton} from './logout.js'
+import {queries} from '../graphql/queries.js'
 
+const graphqlEndpoint = 'https://learn.zone01oujda.ma/api/graphql-engine/v1/graphql';
 const endpoint = "https://learn.zone01oujda.ma/api/auth/signin";
+
 var cardLogin;
 function createLoginForm() {
     const card = document.createElement("div");
@@ -80,6 +83,7 @@ function login(form) {
                 if (cardLogin) {
                     cardLogin.remove()
                     addLogoutButton()
+                    createWelcome(queries.name)
                     createCard()
                     createCard()
                     createCard()
@@ -94,7 +98,6 @@ function login(form) {
 
   
 // GraphQL client setup
-// const graphqlEndpoint = 'https://learn.zone01oujda.ma/api/graphql-engine/v1/graphql';
 
 // async function queryGraphQL(query) {
 //     const jwt = localStorage.getItem('jwt');
@@ -222,6 +225,8 @@ function login(form) {
 // Initialize profile page
 if (localStorage.getItem('jwt')) {
     addLogoutButton()
+    createWelcome(queries.name)
+    totalXP(queries.totalXp)
     createCard()
     createCard()
     createCard()
@@ -238,4 +243,57 @@ function createCard() {
     card.className = "item";
     div.appendChild(card)
     document.body.appendChild(div);
+}
+
+async function createWelcome(query) {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        throw new Error('No JWT token found');
+    }
+
+    const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${jwt}`,
+            'Content-Type': 'application/json', // Important for JSON body
+        },
+        body: JSON.stringify({ query }) // Use 'query' as the key
+    });
+
+    const data = await response.json();
+    const { firstName, lastName } = data.data.user[0]; // Extract directly
+        const h1 = document.createElement('h1')
+        h1.className = 'welcome'
+        h1.textContent = `Welcome, ${firstName} ${lastName}!`
+        document.body.appendChild(h1)
+}
+
+async function totalXP(query) {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        throw new Error('No JWT token found');
+    }
+
+    const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${jwt}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query })
+    });
+
+    const data = await response.json();
+
+    // Extract transactions
+    const transactions = data.data.transaction;
+
+    // Filter and sum the amounts where type is 'xp'
+    const totalXp = transactions
+      .filter((transaction) => transaction.type === 'level')
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+    console.log('Total XP:', totalXp);
+
+    
 }

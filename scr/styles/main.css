@@ -160,3 +160,12 @@ h2 {
         flex: 1 1 calc(100% - 1rem); /* Full width for small screens */
     }
 }
+
+.welcome {
+    position: fixed;
+    top: 5px;
+    left: 20px;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+}
