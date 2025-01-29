@@ -5,10 +5,20 @@ export const queries = {
                     lastName
                 }
             }`,
-    totalXp : `{
-                    transaction {
-                        type
-                        amount
+    xpProgress : `{
+                    transaction(where : { _and : [{type : {_eq : "xp"}},
+                    {eventId : {_eq : 41}}
+                    ]}) {  
+                    type
+  	                amount
+                    path
+                    createdAt
+                    eventId
+                    object {
+                    type
+                    name
+      
+                            }
                     }
                 }`,
     auditRatio : `{
