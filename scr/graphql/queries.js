@@ -12,11 +12,10 @@ export const queries = {
                     }
                 }`,
     auditRatio : `{
-                        transaction {
-                            user {
-                                auditRatio
-                            }
+                        user {
+                            auditRatio
+                            totalDown
+                            totalUp
                         }
-
-                    }`
+                }`
 }

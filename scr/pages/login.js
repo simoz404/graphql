@@ -84,10 +84,9 @@ function login(form) {
                     cardLogin.remove()
                     addLogoutButton()
                     createWelcome(queries.name)
-                    createCard()
-                    createCard()
-                    createCard()
-
+                    createCards()
+                    auditRatio(queries.auditRatio);
+                
                 }
             } else {
                 alert(data.error);
@@ -100,23 +99,26 @@ if (localStorage.getItem('jwt')) {
     addLogoutButton()
     createWelcome(queries.name)
     totalXP(queries.totalXp)
-    createCard()
-    createCard()
-    createCard()
-    createCard()
+    createCards()
+    auditRatio(queries.auditRatio);
 } else {
     createLoginForm();
 
 }
-//four of this card
-function createCard() {
-    const div = document.createElement("div");
-    const card = document.createElement("div");
-    div.className = "container"
-    card.className = "item";
-    div.appendChild(card)
-    document.body.appendChild(div);
+
+function createCards() {
+    const container = document.createElement("div");
+    container.className = "container";
+    for (let i = 0; i < 4; i++) {
+        const card = document.createElement("div");
+        card.className = "item"; // Using "card" instead of "item" to match your CSS
+        container.appendChild(card);
+    }
+
+    document.body.appendChild(container);
 }
+
+
 
 async function createWelcome(query) {
     const jwt = localStorage.getItem('jwt');
@@ -168,3 +170,45 @@ async function totalXP(query) {
 
     
 }
+
+
+async function auditRatio(query) {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        throw new Error('No JWT token found');
+    }
+
+    const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${jwt}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+    });
+
+    const result = await response.json();
+    const data = result.data?.user?.[0]; 
+
+    const { auditRatio, totalUp, totalDown } = data;
+
+    createAuditCard(auditRatio, totalUp, totalDown);
+}
+
+function createAuditCard(auditRatio, totalUp, totalDown) {
+    const container = document.querySelector(".item");
+    if (!container) {
+        console.error("No card found to insert audit ratio!");
+        return;
+    }
+
+    const auditCard = document.createElement("div");
+    auditCard.className = "audit-ratio";
+    const h1 = document.createElement('h1')
+    h1.textContent = auditRatio
+    auditCard.appendChild(h1)
+    
+
+    container.appendChild(auditCard);
+}
+

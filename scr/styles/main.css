@@ -11,84 +11,86 @@ body {
   }
   
   .card {
-    width: 190px;
-    padding: 1.9rem 1.2rem;
+    width: 250px; /* Increase width for a bigger container */
+    padding: 2.5rem 1.5rem; /* Increase padding for a more spacious feel */
     text-align: center;
     background: #2a2b38;
-    /* border-radius: 8px; */
-  }
-  
-   /*Inputs*/
-   .field {
-    margin-top: .5rem;
+    border-radius: 8px; /* Add rounded corners for a smoother look */
+}
+
+/* Inputs */
+.field {
+    margin-top: 1rem; /* Add more space between the title and input fields */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .5em;
+    gap: 1em; /* Increase space between the icon and input */
     background-color: #1f2029;
-    border-radius: 4px;
-    padding: .5em 1em;
-   }
-   
-   .input-icon {
-    height: 1em;
-    width: 1em;
+    border-radius: 6px; /* Slightly larger radius for a more prominent look */
+    padding: 0.8em 1.5em; /* Increase padding to make inputs larger */
+}
+
+.input-icon {
+    height: 1.2em; /* Make the icon a little larger */
+    width: 1.2em;
     fill: #ffeba7;
-   }
-   
-   .input-field {
+}
+
+.input-field {
     background: none;
     border: none;
     outline: none;
     width: 100%;
     color: #d3d3d3;
-   }
-   
-   /*Text*/
-   .title {
-    margin-bottom: 1rem;
-    font-size: 1.5em;
-    font-weight: 500;
+    font-size: 1.1em; /* Slightly larger font for better readability */
+}
+
+/* Text */
+.title {
+    margin-bottom: 1.5rem; /* Increase margin for a more spaced-out look */
+    font-size: 1.8em; /* Increase font size for a bigger title */
+    font-weight: 600; /* Bold the title for more emphasis */
     color: #f5f5f5;
-   }
-   
-   /*Buttons*/
-   .btn {
-    margin: 1rem;
+}
+
+/* Buttons */
+.btn {
+    margin: 1.5rem 0; /* More space between buttons */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px; /* Larger border radius for a softer look */
     font-weight: bold;
-    font-size: .8em;
+    font-size: 1em; /* Increase font size for better readability */
     text-transform: uppercase;
-    padding: 0.6em 1.2em;
+    padding: 0.8em 1.5em; /* Larger padding for bigger buttons */
     background-color: #ffeba7;
     color: #5e6681;
     box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
     transition: all .3s ease-in-out;
-   }
-   
-   .btn-link {
+}
+
+.btn-link {
     color: #f5f5f5;
     display: block;
-    font-size: .75em;
+    font-size: .9em; /* Increase font size for the link */
     transition: color .3s ease-out;
-   }
-   
-   /*Hover & focus*/
-   .field input:focus::placeholder {
+}
+
+/* Hover & focus */
+.field input:focus::placeholder {
     opacity: 0;
     transition: opacity .3s;
-   }
-   
-   .btn:hover {
+}
+
+.btn:hover {
     background-color: #5e6681;
     color: #ffeba7;
     box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
-   }
-   
-   .btn-link:hover {
+}
+
+.btn-link:hover {
     color: #ffeba7;
-   }
+}
+
    
    .profile-container {
     max-width: 1200px;
@@ -169,3 +171,4 @@ h2 {
     color: white;
     border: none;
 }
+
