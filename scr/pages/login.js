@@ -87,6 +87,8 @@ function login(form) {
                     createCards()
                     auditRatio(queries.auditRatio);
                     createGraphProgress(queries.xpProgress)
+    goCheckpointsGraph(queries.goCheckpoint)
+
                 }
             } else {
                 alert(data.error);
@@ -98,11 +100,10 @@ function login(form) {
 if (localStorage.getItem('jwt')) {
     addLogoutButton()
     createWelcome(queries.name)
-    // totalXP(queries.totalXp)
     createCards()
     auditRatio(queries.auditRatio);
     createGraphProgress(queries.xpProgress)
-
+    goCheckpointsGraph(queries.goCheckpoint)
 } else {
     createLoginForm();
 
@@ -115,14 +116,12 @@ function createCards() {
     for (let i = 0; i < 4; i++) {
         const card = document.createElement("div");
         card.className = `item item-${n}`;
-        
-        // Add title
-        const title = document.createElement("h2");
+                const title = document.createElement("h2");
         title.className = "card-title";
         title.textContent = n === 1 ? "Audit Ratio" : 
                           n === 2 ? "Progress Chart" : 
-                          n === 3 ? "Performance" : 
-                          "Statistics";
+                          n === 3 ? "Go Checkpoint" : 
+                          "Total Xp";
         card.appendChild(title);
         
         container.appendChild(card);
@@ -232,6 +231,7 @@ async function createGraphProgress(query) {
     console.log(result);
     
     createSampleGraph(result)
+    totalXP(query)
 }
 
 function createSampleGraph(xp) {
@@ -315,7 +315,8 @@ function createSampleGraph(xp) {
         circle.style.cursor = "pointer";
 
         circle.addEventListener("mouseover", (event) => {
-            tooltip.textContent = d.name;
+            tooltip.innerHTML = `${d.name}<br>${d.date.toISOString().slice(0, 10)}`
+
             tooltip.style.visibility = "visible";
             tooltip.style.left = `${event.pageX + 10}px`;
             tooltip.style.top = `${event.pageY - 10}px`;
@@ -350,18 +351,6 @@ function createSampleGraph(xp) {
     yAxis.setAttribute("stroke", "black");
     svg.appendChild(yAxis);
 
-    // Add X-axis labels
-    dataPoints.forEach(d => {
-        const x = margin + (d.date - minDate) * (width - 2 * margin) / (maxDate - minDate);
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", x);
-        text.setAttribute("y", height - margin + 20);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("class", "axis-label");
-        text.textContent = d.date.toISOString().slice(0, 10);
-        svg.appendChild(text);
-    });
-
     // Add Y-axis labels
     [0, maxY/4, maxY/2, 3*maxY/4, maxY].forEach(value => {
         const y = height - margin - (value / maxY) * (height - 2 * margin);
@@ -376,3 +365,140 @@ function createSampleGraph(xp) {
 
     container.appendChild(svg);
 }
+
+async function totalXP(query) {
+        const jwt = localStorage.getItem('jwt');
+        if (!jwt) {
+            throw new Error('No JWT token found');
+        }
+        const response = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${jwt}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+        const transactions = data.data.transaction;
+        const totalXp = transactions
+          .reduce((sum, transaction) => sum + transaction.amount, 0);
+          const names = transactions
+          .map(transaction => transaction.object?.name) // Extract names (or undefined if missing)
+          .filter(name => name) // Remove undefined values
+          .slice(-4); // Get the last two names
+      console.log(names);
+      
+        
+        createXpCard(totalXp, names)
+        
+    }
+
+    function createXpCard(totalxp, names) {
+        const container = document.querySelector(".item.item-4");
+        if (!container) return;
+    
+        const auditCard = document.createElement("div");
+        auditCard.className = "audit-ratio";
+        
+        const ratioBox = document.createElement("div");
+        ratioBox.className = "ratio-box";
+        
+        const h1 = document.createElement('h1');
+        h1.textContent = `${totalxp} B`;
+        
+        const stats = document.createElement("div");
+        stats.className = "audit-stats";
+        names.forEach((n) => {        
+        const downStat = document.createElement("div");
+        downStat.className = "stat name";
+        downStat.innerHTML = `<span class="arrow">${n}</span> `;
+        
+        stats.appendChild(downStat);
+        })
+        
+        ratioBox.appendChild(h1);
+        auditCard.appendChild(ratioBox);
+        auditCard.appendChild(stats);
+        container.appendChild(auditCard);
+    }
+goCheckpointsGraph(queries)
+    async function goCheckpointsGraph(query) {
+        const jwt = localStorage.getItem('jwt');
+        if (!jwt) {
+            throw new Error('No JWT token found');
+        }
+        const response = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${jwt}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+        });
+        const result = await response.json();
+        createGraph(result.data)
+    }
+
+    function createGraph(data) {
+        const container = document.querySelector(".item.item-3");
+        // Clear any existing content
+        container.innerHTML = '<h2 class="card-title">Performance</h2>';
+    
+        const checkpoints = [
+            "checkpoint01",
+            "checkpoint02",
+            "checkpoint03",
+            "finalCheckpoint",
+        ];
+        
+        const counts = checkpoints.map((key) => data[key]?.length || 0);
+        
+        // Create SVG element with proper namespace
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        const width = 50;
+        const spacing = 20;
+        const maxHeight = 100;
+        
+        svg.setAttribute("width", "300");
+        svg.setAttribute("height", "150");
+        svg.setAttribute("viewBox", "0 0 300 150");
+    
+        // Add label texts
+        const labels = ["Ch1", "Ch2", "Ch3", "Final"];
+        counts.forEach((count, index) => {
+            const height = (count / 10) * maxHeight;
+            const x = index * (width + spacing);
+            const y = maxHeight - height + 30;
+    
+            // Create rectangle
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", x);
+            rect.setAttribute("y", y);
+            rect.setAttribute("width", width);
+            rect.setAttribute("height", height);
+            rect.setAttribute("fill", "#4477BB");
+    
+            // Create label
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", x + width/2);
+            text.setAttribute("y", 140);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("fill", "#333");
+            text.textContent = labels[index];
+    
+            // Create count label
+            const countText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            countText.setAttribute("x", x + width/2);
+            countText.setAttribute("y", y - 5);
+            countText.setAttribute("text-anchor", "middle");
+            countText.setAttribute("fill", "#333");
+            countText.textContent = count;
+    
+            svg.appendChild(rect);
+            svg.appendChild(text);
+            svg.appendChild(countText);
+        });
+    
+        container.appendChild(svg);
+    }

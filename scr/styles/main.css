@@ -84,7 +84,7 @@ body {
 }
 
 /* Audit Ratio Card */
-.audit-ratio {
+/* .audit-ratio {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -94,7 +94,7 @@ body {
     border-radius: 15px;
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-}
+} */
 
 .ratio-box {
     text-align: center;
@@ -131,6 +131,9 @@ body {
     color: #e74c3c;
 }
 
+.stat.name {
+    color: white;
+}
 .arrow {
     font-size: 1.4rem;
 }
