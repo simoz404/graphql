@@ -115,10 +115,19 @@ function createCards() {
     for (let i = 0; i < 4; i++) {
         const card = document.createElement("div");
         card.className = `item item-${n}`;
+        
+        // Add title
+        const title = document.createElement("h2");
+        title.className = "card-title";
+        title.textContent = n === 1 ? "Audit Ratio" : 
+                          n === 2 ? "Progress Chart" : 
+                          n === 3 ? "Performance" : 
+                          "Statistics";
+        card.appendChild(title);
+        
         container.appendChild(card);
         n++
     }
-
     document.body.appendChild(container);
 }
 
@@ -147,33 +156,6 @@ async function createWelcome(query) {
         document.body.appendChild(h1)
 }
 
-// async function totalXP(query) {
-//     const jwt = localStorage.getItem('jwt');
-//     if (!jwt) {
-//         throw new Error('No JWT token found');
-//     }
-
-//     const response = await fetch(graphqlEndpoint, {
-//         method: 'POST',
-//         headers: {
-//             'Authorization': `Bearer ${jwt}`,
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ query })
-//     });
-
-//     const data = await response.json();
-
-//     const transactions = data.data.transaction;
-
-//     const totalXp = transactions
-//       .reduce((sum, transaction) => sum + transaction.amount, 0);
-
-//     console.log('Total XP:', totalXp);
-
-    
-// }
-
 
 async function auditRatio(query) {
     const jwt = localStorage.getItem('jwt');
@@ -198,23 +180,37 @@ async function auditRatio(query) {
     createAuditCard(auditRatio, totalUp, totalDown);
 }
 
+
+
 function createAuditCard(auditRatio, totalUp, totalDown) {
     const container = document.querySelector(".item.item-1");
-
-
-    
-    if (!container) {
-        console.error("No card found to insert audit ratio!");
-        return;
-    }
+    if (!container) return;
 
     const auditCard = document.createElement("div");
     auditCard.className = "audit-ratio";
-    const h1 = document.createElement('h1')
-    h1.textContent = auditRatio.toFixed(1)
-    auditCard.appendChild(h1)
     
-
+    const ratioBox = document.createElement("div");
+    ratioBox.className = "ratio-box";
+    
+    const h1 = document.createElement('h1');
+    h1.textContent = auditRatio.toFixed(1);
+    
+    const stats = document.createElement("div");
+    stats.className = "audit-stats";
+    
+    const upStat = document.createElement("div");
+    upStat.className = "stat up";
+    upStat.innerHTML = `<span class="arrow">▲</span> ${totalUp}`;
+    
+    const downStat = document.createElement("div");
+    downStat.className = "stat down";
+    downStat.innerHTML = `<span class="arrow">▼</span> ${totalDown}`;
+    
+    stats.appendChild(upStat);
+    stats.appendChild(downStat);
+    ratioBox.appendChild(h1);
+    auditCard.appendChild(ratioBox);
+    auditCard.appendChild(stats);
     container.appendChild(auditCard);
 }
 
@@ -235,118 +231,148 @@ async function createGraphProgress(query) {
     const result = await response.json();
     console.log(result);
     
-    createGraphCard(result)
+    createSampleGraph(result)
 }
 
-function createGraphCard(xp) {    
+function createSampleGraph(xp) {
     const container = document.querySelector(".item.item-2");
     if (!container) {
-        console.error("No card found to insert audit ratio!");
+        console.error("Container not found!");
         return;
     }
+    container.innerHTML = '';
+    const h2 = document.createElement('h2')
+    h2.className = 'card-title'
+    h2.textContent = "Progress Chart"
+    container.appendChild(h2)
+    // Create SVG with correct namespace
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 800 400");
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    svg.setAttribute("id", "chart");
 
-    // Create the SVG element
-    const svg = document.createElement("svg");
-    svg.id = "chart";
-    svg.style.width = "800px";  // Set width with units
-    svg.style.height = "400px";  // Set height with units
-    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    // Process data
+    const data = xp.data.transaction.map(d => ({
+        date: new Date(d.createdAt),
+        amount: d.amount,
+        name: d.object.name
+    }));
 
-    // Log xp data to ensure it's correct
-    console.log(xp.data.transaction);
-
-    // Prepare the transaction data
-    xp.data.transaction.forEach(d => {
-        d.date = new Date(d.createdAt);  // Convert createdAt to Date
+    // Calculate cumulative amounts
+    let sum = 0;
+    const dataPoints = data.map(d => {
+        sum += d.amount;
+        return { date: d.date, total: sum, name: d.name };
     });
 
-    // Sort the transactions by date
-    xp.data.transaction.sort((a, b) => a.date - b.date);
-
-    // Calculate cumulative sum
-    let cumulativeSum = 0;
-    const dataPoints = xp.data.transaction.map(d => {
-        cumulativeSum += d.amount;
-        return { date: d.date, cumulativeAmount: cumulativeSum };
-    });
-
-    // Check dataPoints for correctness
-    console.log(dataPoints);
-
-    // SVG dimensions and margins
+    // Set dimensions
     const width = 800;
     const height = 400;
     const margin = 50;
-    
-    const maxAmount = Math.max(...dataPoints.map(d => d.cumulativeAmount));
+
+    // Calculate scales
+    const maxY = Math.max(...dataPoints.map(d => d.total));
     const minDate = dataPoints[0].date;
     const maxDate = dataPoints[dataPoints.length - 1].date;
 
-    // Scaling functions for X and Y axes
-    const xScale = (date) => ((date - minDate) / (maxDate - minDate)) * (width - 2 * margin) + margin;
-    const yScale = (amount) => height - margin - (amount / maxAmount) * (height - 2 * margin);
-
-    // Create path data for the line chart
+    // Create line path
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     let pathData = "";
     dataPoints.forEach((d, i) => {
-        const x = xScale(d.date);
-        const y = yScale(d.cumulativeAmount);
-        pathData += (i === 0 ? "M" : "L") + x + "," + y + " ";
+        const x = margin + (d.date - minDate) * (width - 2 * margin) / (maxDate - minDate);
+        const y = height - margin - (d.total / maxY) * (height - 2 * margin);
+        pathData += (i === 0 ? "M" : "L") + x + "," + y;
     });
-
-    // Create the line path
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("class", "line");
     path.setAttribute("d", pathData);
-    path.setAttribute("stroke", "steelblue");
+    path.setAttribute("stroke", "black");
     path.setAttribute("fill", "none");
     path.setAttribute("stroke-width", "2");
     svg.appendChild(path);
 
-    // Add X-axis labels (dates)
+    // Tooltip
+    const tooltip = document.createElement("div");
+    tooltip.style.position = "absolute";
+    tooltip.style.background = "rgba(0,0,0,0.7)";
+    tooltip.style.color = "#fff";
+    tooltip.style.padding = "5px";
+    tooltip.style.borderRadius = "5px";
+    tooltip.style.visibility = "hidden";
+    tooltip.style.fontSize = "12px";
+    tooltip.style.pointerEvents = "none";
+    document.body.appendChild(tooltip);
+
+    // Add data points as circles with hover
     dataPoints.forEach(d => {
-        const x = xScale(d.date);
+        const x = margin + (d.date - minDate) * (width - 2 * margin) / (maxDate - minDate);
+        const y = height - margin - (d.total / maxY) * (height - 2 * margin);
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", "5");
+        circle.setAttribute("fill", "red");
+        circle.style.cursor = "pointer";
+
+        circle.addEventListener("mouseover", (event) => {
+            tooltip.textContent = d.name;
+            tooltip.style.visibility = "visible";
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY - 10}px`;
+        });
+
+        circle.addEventListener("mousemove", (event) => {
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY - 10}px`;
+        });
+
+        circle.addEventListener("mouseout", () => {
+            tooltip.style.visibility = "hidden";
+        });
+
+        svg.appendChild(circle);
+    });
+
+    // Create axes
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", margin);
+    xAxis.setAttribute("y1", height - margin);
+    xAxis.setAttribute("x2", width - margin);
+    xAxis.setAttribute("y2", height - margin);
+    xAxis.setAttribute("stroke", "black");
+    svg.appendChild(xAxis);
+
+    const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    yAxis.setAttribute("x1", margin);
+    yAxis.setAttribute("y1", margin);
+    yAxis.setAttribute("x2", margin);
+    yAxis.setAttribute("y2", height - margin);
+    yAxis.setAttribute("stroke", "black");
+    svg.appendChild(yAxis);
+
+    // Add X-axis labels
+    dataPoints.forEach(d => {
+        const x = margin + (d.date - minDate) * (width - 2 * margin) / (maxDate - minDate);
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", x);
-        text.setAttribute("y", height - margin + 20);  // Position text below axis
-        text.setAttribute("class", "axis-label");
+        text.setAttribute("y", height - margin + 20);
         text.setAttribute("text-anchor", "middle");
-        text.textContent = d.date.toISOString().slice(0, 10);  // Format as YYYY-MM-DD
+        text.setAttribute("class", "axis-label");
+        text.textContent = d.date.toISOString().slice(0, 10);
         svg.appendChild(text);
     });
 
     // Add Y-axis labels
-    const yTicks = [0, maxAmount / 4, maxAmount / 2, (3 * maxAmount) / 4, maxAmount];
-    yTicks.forEach((tick) => {
-        const y = yScale(tick);
+    [0, maxY/4, maxY/2, 3*maxY/4, maxY].forEach(value => {
+        const y = height - margin - (value / maxY) * (height - 2 * margin);
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", margin - 10);
         text.setAttribute("y", y);
-        text.setAttribute("class", "axis-label");
         text.setAttribute("text-anchor", "end");
-        text.textContent = tick;
+        text.setAttribute("class", "axis-label");
+        text.textContent = Math.round(value);
         svg.appendChild(text);
     });
 
-    // Create Y-axis line
-    
-    const yAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    yAxisLine.setAttribute("x1", margin);
-    yAxisLine.setAttribute("y1", margin);
-    yAxisLine.setAttribute("x2", margin);
-    yAxisLine.setAttribute("y2", height - margin);
-    yAxisLine.setAttribute("stroke", "black");
-    svg.appendChild(yAxisLine);
-
-    // Create X-axis line
-    const xAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    xAxisLine.setAttribute("x1", margin);
-    xAxisLine.setAttribute("y1", height - margin);
-    xAxisLine.setAttribute("x2", width - margin);
-    xAxisLine.setAttribute("y2", height - margin);
-    xAxisLine.setAttribute("stroke", "black");
-    svg.appendChild(xAxisLine);
-
-    // Append the SVG to the container
     container.appendChild(svg);
 }

@@ -58,6 +58,7 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
+    padding-top: 50px; /* Space for fixed title */
 }
 
 .item:hover {
@@ -65,22 +66,88 @@ body {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-/* Audit Ratio Special Styling */
-.audit-ratio {
+/* Card Titles */
+.card-title {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 15px;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    width: 100%;
     text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Audit Ratio Card */
+.audit-ratio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    height: calc(100% - 51px);
+    border-radius: 15px;
     background: linear-gradient(135deg, #2ecc71, #27ae60);
-    border-radius: 12px;
-    padding: 30px 40px;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
 }
 
-.audit-ratio h1 {
-    margin: 0;
-    font-size: 4rem;
-    font-weight: 700;
+.ratio-box {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.ratio-box h1 {
+    font-size: 3.5rem;
     color: #ffffff;
+    margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    letter-spacing: 2px;
+}
+
+.audit-stats {
+    display: flex;
+    gap: 25px;
+}
+
+.stat {
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.stat.up {
+    color: #27ae60;
+}
+
+.stat.down {
+    color: #e74c3c;
+}
+
+.arrow {
+    font-size: 1.4rem;
+}
+
+/* Chart Item */
+.item-2 {
+    width: 94%;
+    height: auto;
+    min-height: 400px;
+    padding: 15px;
+    border: 1px solid #444;
+}
+
+.axis-label {
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    fill: #ffffff;
 }
 
 /* Welcome Message */
@@ -115,12 +182,17 @@ body {
         font-size: 2rem;
     }
 
-    .audit-ratio h1 {
+    .ratio-box h1 {
         font-size: 3rem;
     }
 
     .item {
         min-height: 150px;
+        padding-top: 45px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
     }
 }
 
@@ -134,49 +206,15 @@ body {
         padding: 10px 20px;
         font-size: 0.9rem;
     }
+
+    .card-title {
+        font-size: 1rem;
+        padding: 10px;
+    }
 }
 
-/* Additional Effects */
-.item:nth-child(2) {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.item:nth-child(3) {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-.item:nth-child(4) {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-}
-
-/* Hover Effect for Items */
-.item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
-    transition: 0.5s;
-}
-
-.item:hover::before {
-    left: 100%;
-}
-
-.line {
-    fill: none;
-    stroke: steelblue;
-    stroke-width: 2;
-  }
-  .axis-label {
-    font-size: 12px;
-    fill: black;
-  }
-  
+/* Gradient Backgrounds */
+.item:nth-child(1) { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.item:nth-child(2) { background: linear-gradient(135deg, #3498db, #2980b9); }
+.item:nth-child(3) { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.item:nth-child(4) { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
