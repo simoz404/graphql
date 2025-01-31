@@ -29,7 +29,6 @@ export const queries = {
           where: {
             _and: [
               { type: { _eq: "xp" } }
-              { eventId: { _eq: 11 } }
               { path: { _like: "%checkpoint-01%" } }
             ]
           }
@@ -40,7 +39,6 @@ export const queries = {
           where: {
             _and: [
               { type: { _eq: "xp" } }
-              { eventId: { _eq: 11 } }
               { path: { _like: "%checkpoint-02%" } }
             ]
           }
@@ -51,7 +49,6 @@ export const queries = {
           where: {
             _and: [
               { type: { _eq: "xp" } }
-              { eventId: { _eq: 11 } }
               { path: { _like: "%checkpoint-03%" } }
             ]
           }
@@ -62,7 +59,6 @@ export const queries = {
           where: {
             _and: [
               { type: { _eq: "xp" } }
-              { eventId: { _eq: 11 } }
               { path: { _like: "%final-checkpoint%" } }
             ]
           }
