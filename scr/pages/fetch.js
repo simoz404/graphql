@@ -1,3 +1,4 @@
+import {addLogoutButton} from "./logout.js"
 import { createAuditCard } from "./auditRatio.js";
 import {createXpGraph} from "./createXpProgress.js"
 import {createXpCard} from "./totalXp.js"
@@ -32,6 +33,7 @@ export async function fetchData(query) {
 
     const { auditRatio, totalUp, totalDown } = audit;
     createCards()
+    addLogoutButton()
     createAuditCard(auditRatio, totalUp, totalDown)
     createXpGraph(result.data.xpProgress)
     createXpCard(result.data.xpProgress)
