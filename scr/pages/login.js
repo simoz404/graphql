@@ -142,13 +142,13 @@ async function createWelcome(query) {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${jwt}`,
-            'Content-Type': 'application/json', // Important for JSON body
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }) // Use 'query' as the key
+        body: JSON.stringify({ query }) 
     });
 
     const data = await response.json();
-    const { firstName, lastName } = data.data.user[0]; // Extract directly
+    const { firstName, lastName } = data.data.user[0];
         const h1 = document.createElement('h1')
         h1.className = 'welcome'
         h1.textContent = `Welcome, ${firstName} ${lastName}!`
@@ -193,7 +193,7 @@ function createAuditCard(auditRatio, totalUp, totalDown) {
     
     const h1 = document.createElement('h1');
     h1.textContent = auditRatio.toFixed(1);
-    
+    h1.className = 'auditnum'
     const stats = document.createElement("div");
     stats.className = "audit-stats";
     
@@ -394,34 +394,28 @@ async function totalXP(query) {
         
     }
 
-    function createXpCard(totalxp, names) {
-        const container = document.querySelector(".item.item-4");
-        if (!container) return;
-    
-        const auditCard = document.createElement("div");
-        auditCard.className = "audit-ratio";
-        
-        const ratioBox = document.createElement("div");
-        ratioBox.className = "ratio-box";
-        
-        const h1 = document.createElement('h1');
-        h1.textContent = `${totalxp} B`;
-        
-        const stats = document.createElement("div");
-        stats.className = "audit-stats";
-        names.forEach((n) => {        
-        const downStat = document.createElement("div");
-        downStat.className = "stat name";
-        downStat.innerHTML = `<span class="arrow">${n}</span> `;
-        
-        stats.appendChild(downStat);
-        })
-        
-        ratioBox.appendChild(h1);
-        auditCard.appendChild(ratioBox);
-        auditCard.appendChild(stats);
-        container.appendChild(auditCard);
-    }
+function createXpCard(totalxp, names) {
+  const container = document.querySelector(".item.item-4");
+  container.innerHTML = `
+    <h2 class="card-title">Total XP</h2>
+    <div class="xp-card">
+      <div class="xp-amount">${totalxp}B</div>
+      <h3 class="projects-title">Recent Projects</h3>
+      <ul class="projects-list"></ul>
+    </div>
+  `;
+
+  const projectsList = container.querySelector('.projects-list');
+  names.slice(0, 4).forEach(name => {
+    const li = document.createElement('li');
+    li.className = 'project-item';
+    li.innerHTML = `
+      <span>${name.replace(/-/g, ' ')}</span>
+    `;
+    projectsList.appendChild(li);
+  });
+}
+
 goCheckpointsGraph(queries)
     async function goCheckpointsGraph(query) {
         const jwt = localStorage.getItem('jwt');
@@ -442,63 +436,71 @@ goCheckpointsGraph(queries)
 
     function createGraph(data) {
         const container = document.querySelector(".item.item-3");
-        // Clear any existing content
-        container.innerHTML = '<h2 class="card-title">Performance</h2>';
-    
-        const checkpoints = [
-            "checkpoint01",
-            "checkpoint02",
-            "checkpoint03",
-            "finalCheckpoint",
-        ];
-        
-        const counts = checkpoints.map((key) => data[key]?.length || 0);
-        
-        // Create SVG element with proper namespace
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        const width = 50;
-        const spacing = 20;
-        const maxHeight = 100;
-        
-        svg.setAttribute("width", "300");
-        svg.setAttribute("height", "150");
-        svg.setAttribute("viewBox", "0 0 300 150");
-    
-        // Add label texts
+        container.innerHTML = `
+          <h2 class="card-title">Piscine Go Checkpoints</h2>
+          <div class="checkpoints-container"></div>
+        `;
+      
+        const checkpointsContainer = container.querySelector('.checkpoints-container');
+        const checkpoints = ["checkpoint01", "checkpoint02", "checkpoint03", "finalCheckpoint"];
+        const counts = checkpoints.map(key => data[key]?.length || 0);
+        const maxCount = Math.max(...counts, 10);
         const labels = ["Ch1", "Ch2", "Ch3", "Final"];
+        
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 400 200");
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svg.innerHTML = `
+          <style>
+            .checkpoint-bar:hover { opacity: 0.9; }
+            .checkpoint-value { font-size: 14px; }
+          </style>
+        `;
+      
         counts.forEach((count, index) => {
-            const height = (count / 10) * maxHeight;
-            const x = index * (width + spacing);
-            const y = maxHeight - height + 30;
-    
-            // Create rectangle
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            rect.setAttribute("x", x);
-            rect.setAttribute("y", y);
-            rect.setAttribute("width", width);
-            rect.setAttribute("height", height);
-            rect.setAttribute("fill", "#4477BB");
-    
-            // Create label
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", x + width/2);
-            text.setAttribute("y", 140);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("fill", "#333");
-            text.textContent = labels[index];
-    
-            // Create count label
-            const countText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            countText.setAttribute("x", x + width/2);
-            countText.setAttribute("y", y - 5);
-            countText.setAttribute("text-anchor", "middle");
-            countText.setAttribute("fill", "#333");
-            countText.textContent = count;
-    
-            svg.appendChild(rect);
-            svg.appendChild(text);
-            svg.appendChild(countText);
+          const barHeight = (count / maxCount) * 120;
+          const x = index * 90 + 30;
+          const y = 160 - barHeight;
+      
+          const barGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          barGroup.innerHTML = `
+            <rect class="checkpoint-bar" 
+                  x="${x}" 
+                  y="${y}" 
+                  width="50" 
+                  height="${barHeight}" 
+                  rx="6" 
+                  fill="url(#barGradient)"/>
+            <text class="checkpoint-label" 
+                  x="${x + 25}" 
+                  y="180" 
+                  text-anchor="middle">${labels[index]}</text>
+            <text class="checkpoint-value" 
+                  x="${x + 25}" 
+                  y="${y - 10}" 
+                  text-anchor="middle">${count}</text>
+          `;
+      
+          // Add hover effect
+          barGroup.addEventListener('mouseover', () => {
+            barGroup.querySelector('rect').setAttribute('fill', '#818cf8');
+          });
+          barGroup.addEventListener('mouseout', () => {
+            barGroup.querySelector('rect').setAttribute('fill', 'url(#barGradient)');
+          });
+      
+          svg.appendChild(barGroup);
         });
-    
-        container.appendChild(svg);
-    }
+      
+        // Add gradient definition
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        defs.innerHTML = `
+          <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#3b82f6"/>
+          </linearGradient>
+        `;
+        svg.insertBefore(defs, svg.firstChild);
+      
+        checkpointsContainer.appendChild(svg);
+      }
