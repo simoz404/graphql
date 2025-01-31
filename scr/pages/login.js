@@ -47,7 +47,7 @@ function createLoginForm() {
     form.appendChild(field2);
   
     const button = document.createElement("button");
-    button.className = "btn";
+    button.className = "btnlogin";
     button.type = "submit";
     button.textContent = "Login";
     form.appendChild(button);
@@ -67,7 +67,6 @@ function login(form) {
         const password = document.getElementById("password").value;
         
         const encodedCredentials = btoa(`${username}:${password}`);
-
 
             const response = await fetch(endpoint, {
                 method: "POST",
