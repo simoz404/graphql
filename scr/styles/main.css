@@ -64,7 +64,7 @@ body {
 /* Grid Items */
 .item {
     background: #1e293b;
-    /* border-radius: 16px; */
+    border-radius: 16px;
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -86,7 +86,14 @@ body {
 .item-3, .item-4 {
     min-height: 280px;
 }
-
+.audit-ratio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100% ;
+}
 .item::before {
     content: '';
     position: absolute;

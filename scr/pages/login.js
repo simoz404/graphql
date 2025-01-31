@@ -82,8 +82,8 @@ function login(form) {
                 localStorage.setItem("jwt", data)
                 if (cardLogin) {
                     cardLogin.remove()
-                    addLogoutButton()
                     createWelcome(queries.name)
+                    addLogoutButton()
                     createCards()
                     auditRatio(queries.auditRatio);
                     createGraphProgress(queries.xpProgress)
@@ -98,8 +98,8 @@ function login(form) {
 }
 
 if (localStorage.getItem('jwt')) {
-    addLogoutButton()
     createWelcome(queries.name)
+    addLogoutButton()
     createCards()
     auditRatio(queries.auditRatio);
     createGraphProgress(queries.xpProgress)
@@ -247,7 +247,7 @@ function createSampleGraph(xp) {
     container.appendChild(h2)
     // Create SVG with correct namespace
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 800 400");
+    svg.setAttribute("viewBox", "-20 0 800 400");
     svg.style.width = "100%";
     svg.style.height = "auto";
     svg.setAttribute("id", "chart");
